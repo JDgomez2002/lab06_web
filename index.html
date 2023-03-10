@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        font-size: 1.5em;
+        text-align: center;
+        background: #013A63;
+        color: #fff;
+      }
+
+      .App {
+        max-width: 860px;
+        margin: 40px auto;
+      }
+
+      button {
+        background: none;
+        border: 2px solid #fff;
+        padding: 6px 12px;
+        border-radius: 4px;
+        color: #fff;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1em;
+      }
+
+      button:hover {
+        background: #012A4A;
+        color: #fff;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+
+      const cardImages = [
+        
+      ]
+
+      function App() {
+        return (
+          <div className="App">
+            <h1>Cars Memory Game!</h1>
+            <button>New Game</button>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App/>);
+    </script>
+  </body>
+</html>
