@@ -47,6 +47,11 @@
         font-size: large;
       }
 
+      .game-finished {
+        font-weight: bold;
+        margin-top: 23px;
+      }
+
       .card-grid{
         margin-top: 40px;
         display: grid;
@@ -148,6 +153,7 @@
         const [choice_One, set_Choice_One] = useState(null)
         const [choice_Two, set_Choice_Two] = useState(null)
         const [disabled, set_Disable] = useState(false)
+        const [game_finished, set_Game_Finished] = useState(false)
 
         //shuffle_all_cards
         const shuffle_All_Cards = () => {
@@ -159,11 +165,24 @@
             set_Choice_Two(null)
             set_Cards(shuffled_Cards)
             set_Turns(0)
+            set_Game_Finished(false)
         }
 
         //hable the user choice
         const handle_Choice = (card) => {
           choice_One ? set_Choice_Two(card) : set_Choice_One(card)
+        }
+
+        const check_game_status = () => {
+          let cards_matched_counter = 0
+          cards.forEach(card_element => {
+            console.log(card_element.matched.toString())
+            if(card_element.matched){
+              cards_matched_counter++
+            }
+          })
+          console.log(`COUNTER: ${cards_matched_counter}`)
+          return cards_matched_counter
         }
 
         //compare cards
@@ -204,6 +223,18 @@
         useEffect(() => {
           shuffle_All_Cards()
         }, [])
+
+        useEffect(() => {
+          check_game_status()
+        }, [choice_One, choice_Two])
+
+        useEffect(() => {
+          if(check_game_status()===12){
+            set_Game_Finished(true)
+            setTimeout(() => console.log(`GAME FINISHED: ${game_finished.toString()}`), 1000)
+            // console.log(`GAME FINISHED: ${game_finished}`)
+          }
+        }, [check_game_status()])
         
 
         return (
@@ -211,6 +242,7 @@
             <h1>Cars Memory Game!</h1>
             <p>Turns: {turns}</p>
             <button onClick = {shuffle_All_Cards} >New Game</button>
+            <div className='game-finished' >{game_finished ? 'GAME FINISHED!' : ''}</div>
             <div className="card-grid">
               {cards.map(card => (
                 <Single_Card 
