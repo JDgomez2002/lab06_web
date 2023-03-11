@@ -147,6 +147,7 @@
         const [turns, set_Turns] = useState(0)
         const [choice_One, set_Choice_One] = useState(null)
         const [choice_Two, set_Choice_Two] = useState(null)
+        const [disabled, set_Disable] = useState(false)
 
         //shuffle_all_cards
         const shuffle_All_Cards = () => {
@@ -154,6 +155,8 @@
             .sort(() => Math.random() - 0.5)
             .map((card) => ({ ...card, id: Math.random() }))
 
+            set_Choice_One(null)
+            set_Choice_Two(null)
             set_Cards(shuffled_Cards)
             set_Turns(0)
         }
@@ -166,6 +169,7 @@
         //compare cards
         useEffect(() => {
           if(choice_One && choice_Two){
+            set_Disable(true)
             if(choice_One.src === choice_Two.src){
               console.log('those match!!!')
               set_Cards(prevCards => {
@@ -192,15 +196,20 @@
           set_Choice_One(null)
           set_Choice_Two(null)
           set_Turns(prevTurns => prevTurns + 1)
+          set_Disable(false)
         }
 
         console.log(cards, turns)
+
+        useEffect(() => {
+          shuffle_All_Cards()
+        }, [])
         
 
         return (
           <div className="Game" >
             <h1>Cars Memory Game!</h1>
-            <p className="instructions-font">Click on 'New Game' to start!{'\n'}</p>
+            <p>Turns: {turns}</p>
             <button onClick = {shuffle_All_Cards} >New Game</button>
             <div className="card-grid">
               {cards.map(card => (
@@ -209,6 +218,7 @@
                   card={card} 
                   handle_Choice={handle_Choice}
                   card_flipped={card === choice_One || card === choice_Two || card.matched}
+                  disabled={disabled}
                 />
               ))}
             </div>
@@ -216,10 +226,12 @@
         )
       }
 
-      function Single_Card({card, handle_Choice, card_flipped}) {
+      function Single_Card({card, handle_Choice, card_flipped, disabled}) {
 
         const handle_Click = () => {
-          handle_Choice(card)
+          if(!disabled){
+            handle_Choice(card)
+          }
         }
 
         return (
