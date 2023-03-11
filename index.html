@@ -4,8 +4,6 @@
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script> -->
-    <!-- <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script> -->
     <style>
 
       body {
@@ -48,7 +46,13 @@
         
       }
 
-      .card-dimensions {
+      .card-dimensions-front {
+        height: 200px;
+        width: 200px;
+        background-color: #a0c4ff;
+      }
+
+      .card-dimensions-back {
         height: 200px;
         width: 200px;
       }
@@ -71,30 +75,60 @@
         border-radius: 6px;
       }
 
+      /* .card .front .image-card-dimensions{
+        transform: rotateY(90deg);
+        position: absolute;
+      } */
+
+      .card .card-dimensions-front {
+        /* transform: rotateY(0deg); */
+        transform: rotateY(90deg);
+        position: absolute;
+      }
+
+      .flipped {
+        height: 200px;
+        width: 200px;
+      }
+
+      .not-flipped {
+        height: 200px;
+        width: 200px;
+      }
+
+      .flipped .card-dimensions-front {
+        transform: rotateY(0deg);
+        
+      }
+
+      /* .flipped .card-dimensions-back .image-card-dimensions{
+        transform: rotateY(0deg);
+      } */
+
     </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="text/babel">
       //https://stackoverflow.com/questions/70067751/usestate-and-usehooks-in-html
-      const {useState} = React
+      const {useState, useEffect} = React
 
       const card_back = {"src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/card.jpg?raw=true"}
       const card_Images = [
-        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/camaro.png?raw=true" },
-        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/corvette.png?raw=true" },
-        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/ferrari.png?raw=true" },
-        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/jeep.png?raw=true" },
-        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/lamborghini.png?raw=true" },
-        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/porsche.png?raw=true" }
+        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/camaro.png?raw=true", matched:false },
+        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/corvette.png?raw=true", matched:false },
+        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/ferrari.png?raw=true", matched:false },
+        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/jeep.png?raw=true", matched:false },
+        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/lamborghini.png?raw=true", matched:false },
+        { "src": "https://github.com/JDgomez2002/lab06_web/blob/main/img/porsche.png?raw=true", matched:false }
       ]
 
       function Game() {
 
         const [cards, set_Cards] = useState([])
         const [turns, set_Turns] = useState(0)
-        const [choice_One, set_ChoiceOne] = useState(null)
-        const [choice_Two, set_ChoiceTwo] = useState(null)
+        const [choice_One, set_Choice_One] = useState(null)
+        const [choice_Two, set_Choice_Two] = useState(null)
 
         //shuffle_all_cards
         const shuffle_All_Cards = () => {
@@ -106,8 +140,44 @@
             set_Turns(0)
         }
 
+        //hable the user choice
+        const handle_Choice = (card) => {
+          choice_One ? set_Choice_Two(card) : set_Choice_One(card)
+        }
+
+        //compare cards
+        useEffect(() => {
+          if(choice_One && choice_Two){
+            if(choice_One.src === choice_Two.src){
+              console.log('those match!!!')
+              set_Cards(prevCards => {
+                return prevCards.map( card =>{
+                  if(card.src === choice_One.src){
+                    return {...card, matched:true}
+                  } 
+                  else {
+                    return card
+                  }
+                })
+              })
+              reset_Turn()
+            } 
+            else{
+              console.log('those cards dont match')
+              reset_Turn()
+            }
+          }
+        }, [choice_One, choice_Two])
+
+        //reset choices and turns
+        const reset_Turn = () => {
+          set_Choice_One(null)
+          set_Choice_Two(null)
+          set_Turns(prevTurns => prevTurns + 1)
+        }
+
         console.log(cards, turns)
-        shuffle_All_Cards
+        
 
         return (
           <div className="Game" >
@@ -115,23 +185,41 @@
             <button onClick = {shuffle_All_Cards} >New Game</button>
             <div className="card-grid">
               {cards.map(card => (
-                <Single_Card key={card.id} card={card} />
+                <Single_Card 
+                  key={card.id} 
+                  card={card} 
+                  handle_Choice={handle_Choice}
+                  card_flipped={card === choice_One || card === choice_Two || card.matched}
+                />
               ))}
             </div>
           </div>
         )
       }
 
-      function Single_Card({card}) {
+      function Single_Card({card, handle_Choice, card_flipped}) {
+
+        const handle_Click = () => {
+          handle_Choice(card)
+        }
 
         return (
           <div className="card">
-            <div>
-              <div className="card-dimensions">
-              <img className="image-card-dimensions" src={card.src} alt="card front" />
+            <div className={card_flipped ? "flipped" : "not-flipped"} >
+              <div className="card-dimensions-front">
+                <img 
+                  className="image-card-dimensions" 
+                  src={card.src} 
+                  alt="card front" 
+                />
               </div>
-              <img className="card-dimensions" src={card_back.src} alt="card back" />
-            </div>
+                <img 
+                  className="card-dimensions-back" 
+                  src={card_back.src} 
+                  onClick={handle_Click} 
+                  alt="card back" 
+                />
+              </div>
           </div>
         )
       }
